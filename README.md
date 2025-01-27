@@ -148,4 +148,5 @@ As funcionalidades e regras de negócio estão detalhadas abaixo.
 ```
 
 ## Modelagem de Entidade-Relacionamento:
+![alt text](docs/ER-sistema-odontologico-v0.png)
 
