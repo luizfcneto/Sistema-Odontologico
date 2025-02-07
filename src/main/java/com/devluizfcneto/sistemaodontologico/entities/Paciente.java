@@ -25,6 +25,8 @@ public class Paciente {
 	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
 	
+	public Paciente() {};
+	
 	public Paciente(String cpf, String nome, LocalDate dataNascimento) {
 		this.cpf = cpf;
 		this.nome = nome;
