@@ -3,12 +3,14 @@ package com.devluizfcneto.sistemaodontologico.dtos;
 import java.time.LocalDate;
 
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
+import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
+import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
 
 public class CadastrarPacienteDTO {
 
 	private String cpf;
 	private String nome;
-	private LocalDate dataNascimento;
+	private String dataNascimento;
 	private Integer idade;
 	
 	public CadastrarPacienteDTO() {}
@@ -16,19 +18,23 @@ public class CadastrarPacienteDTO {
 	public CadastrarPacienteDTO(Paciente paciente) {
 		this.cpf = paciente.getCpf();
 		this.nome = paciente.getNome();
-		this.dataNascimento = paciente.getDataNascimento();
+		this.dataNascimento = DateUtils.formatLocalDateToString(paciente.getDataNascimento());
 		this.calculaIdade();
 	}
 	
-	public CadastrarPacienteDTO(String cpf, String nome, LocalDate dataNascimento) {
+	public CadastrarPacienteDTO(String cpf, String nome, String dataNascimento) {
 		this.cpf = cpf;
 		this.nome = nome;
 		this.dataNascimento = dataNascimento;
 		this.calculaIdade();
 	}
 	
-	private void calculaIdade() {
-		this.idade = LocalDate.now().getYear() - this.dataNascimento.getYear();
+	public void calculaIdade() {
+		if(this.dataNascimento != null) {			
+			this.idade = LocalDate.now().getYear() - (DateUtils.formatStringToLocalDate(dataNascimento)).getYear();
+		} else {
+			throw new BadRequestException("Não foi possível validar o campo dataNascimento");
+		}
 	}
 	
 	public Integer getIdade() {
@@ -51,11 +57,11 @@ public class CadastrarPacienteDTO {
 		this.nome = nome;
 	}
 	
-	public LocalDate getDataNascimento() {
+	public String getDataNascimento() {
 		return dataNascimento;
 	}
 	
-	public void setDataNascimento(LocalDate dataNascimento) {
+	public void setDataNascimento(String dataNascimento) {
 		this.dataNascimento = dataNascimento;
 	}
 	
