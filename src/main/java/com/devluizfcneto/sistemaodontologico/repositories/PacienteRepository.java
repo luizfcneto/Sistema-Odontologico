@@ -7,8 +7,8 @@ import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 
 @Repository
 public interface PacienteRepository extends JpaRepository<Paciente, Long> {
-
 	
 	public Paciente findByNome(String nome);
+	public Paciente findByCpf(String cpf);
 	
 }

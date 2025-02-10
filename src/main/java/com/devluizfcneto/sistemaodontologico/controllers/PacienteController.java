@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarPacienteDTO;
+import com.devluizfcneto.sistemaodontologico.dtos.ErrorDTO;
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
+import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
+import com.devluizfcneto.sistemaodontologico.errors.PacienteAlreadyExistsException;
 import com.devluizfcneto.sistemaodontologico.services.PacienteService;
 
 @RestController
@@ -20,14 +23,16 @@ public class PacienteController {
 	private PacienteService pacienteService;
 	
 	@PostMapping("/")
-	public ResponseEntity<Paciente> cadastrarPaciente(@RequestBody CadastrarPacienteDTO paciente){
-		System.out.println("Executoou o Cadastrar Paciente");
+	public ResponseEntity<?> cadastrarPaciente(@RequestBody CadastrarPacienteDTO paciente){
 		try {
 			Paciente pacienteCadastrado = this.pacienteService.cadastrar(paciente);
 			return new ResponseEntity<Paciente>(pacienteCadastrado, HttpStatusCode.valueOf(201));
 			
-		}catch(Error erro) {
-			return new ResponseEntity<Paciente>(HttpStatusCode.valueOf(500));			
+		} catch (PacienteAlreadyExistsException | BadRequestException ex){
+				throw ex;
+				
+		} catch (Exception exception) {
+			return new ResponseEntity<ErrorDTO>(new ErrorDTO(exception.getMessage()), HttpStatusCode.valueOf(500));			
 		}
 	}
 
