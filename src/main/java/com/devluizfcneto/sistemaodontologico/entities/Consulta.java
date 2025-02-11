@@ -29,6 +29,8 @@ public class Consulta {
 	
 	private LocalTime tempo;
 	
+	public Consulta() {};
+	
 	public Consulta(LocalDate data, LocalTime horaInicial, LocalTime horaFinal, LocalTime tempo) {
 		super();
 		this.data = data;
