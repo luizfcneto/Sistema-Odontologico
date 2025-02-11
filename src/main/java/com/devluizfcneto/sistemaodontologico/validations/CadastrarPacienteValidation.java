@@ -25,10 +25,15 @@ public class CadastrarPacienteValidation {
 		if(cpf == null || cpf.length() != 11) {
 			throw new BadRequestException("Erro ao validar cpf paciente");
 		}
+		
+		if(!CpfValidation.isValid(cpf)) {
+			throw new BadRequestException("Erro ao validar cpf paciente");
+		}
+		
 	}
 	
 	private void validateNome(String nome) {
-		if(nome == null || nome.length() < 5) {
+		if(nome == null || nome.length() < 5) { 
 			throw new BadRequestException("Erro ao validar nome do paciente");
 		}
 	}
