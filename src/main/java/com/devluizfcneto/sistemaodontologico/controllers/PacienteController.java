@@ -3,6 +3,8 @@ package com.devluizfcneto.sistemaodontologico.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import com.devluizfcneto.sistemaodontologico.dtos.ErrorDTO;
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
 import com.devluizfcneto.sistemaodontologico.errors.PacienteAlreadyExistsException;
+import com.devluizfcneto.sistemaodontologico.errors.PacienteNotFoundException;
 import com.devluizfcneto.sistemaodontologico.services.PacienteService;
 
 @RestController
@@ -36,4 +39,16 @@ public class PacienteController {
 		}
 	}
 
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> removerPaciente(@PathVariable(required = true, name = "id") Long id){
+		try {
+			this.pacienteService.remover(id);
+			return ResponseEntity.noContent().build();
+		} catch (PacienteNotFoundException ex) {
+			throw ex;
+		} catch(Exception exception) {
+			return new ResponseEntity<ErrorDTO>(new ErrorDTO(exception.getMessage()), HttpStatusCode.valueOf(500));
+		}
+	}
+	
 }
