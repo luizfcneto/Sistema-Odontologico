@@ -10,5 +10,5 @@ public interface PacienteService {
 	public Paciente cadastrar(CadastrarPacienteDTO paciente);
 	public Paciente buscar(Long id);
 	public Paciente buscar(String nome);
-	public Boolean remover(Long id);
+	public void remover(Long id);
 }

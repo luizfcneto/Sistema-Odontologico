@@ -24,9 +24,17 @@ public class GlobalExceptionHandler {
 				.body(new ErrorDTO(pacienteAlreadyExistsException.getMessage()));
 	}
 	
+	@ExceptionHandler(PacienteNotFoundException.class)
+	public ResponseEntity<ErrorDTO> handlePacienteNotFoundException(PacienteNotFoundException pacienteNotFoundException){
+		return ResponseEntity
+				.status(pacienteNotFoundException.getCode())
+				.body(new ErrorDTO(pacienteNotFoundException.getMessage()));
+	}
+	
+	
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleGenericException(Exception ex) {
-        return ResponseEntity
+		return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorDTO("Ocorreu um erro interno no servidor."));
     }

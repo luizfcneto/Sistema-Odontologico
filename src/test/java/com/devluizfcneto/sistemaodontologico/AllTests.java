@@ -7,6 +7,7 @@ import org.junit.platform.suite.api.Suite;
 import com.devluizfcneto.sistemaodontologico.paciente.CadastrarPacienteDTOTest;
 import com.devluizfcneto.sistemaodontologico.paciente.ControllerCadastrarPacienteTest;
 import com.devluizfcneto.sistemaodontologico.paciente.PacienteServiceCadastrarTest;
+import com.devluizfcneto.sistemaodontologico.paciente.PacienteServiceRemoverTest;
 import com.devluizfcneto.sistemaodontologico.paciente.PacienteTest;
 import com.devluizfcneto.sistemaodontologico.paciente.ValidarCadastroPacienteTest;
 
@@ -17,7 +18,8 @@ import com.devluizfcneto.sistemaodontologico.paciente.ValidarCadastroPacienteTes
 	PacienteTest.class,
 	PacienteServiceCadastrarTest.class,
 	ValidarCadastroPacienteTest.class,
-	ControllerCadastrarPacienteTest.class
+	ControllerCadastrarPacienteTest.class,
+	PacienteServiceRemoverTest.class
 })
 public class AllTests {
 

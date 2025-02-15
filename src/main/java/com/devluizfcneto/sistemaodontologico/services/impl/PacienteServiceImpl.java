@@ -1,11 +1,14 @@
 package com.devluizfcneto.sistemaodontologico.services.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarPacienteDTO;
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 import com.devluizfcneto.sistemaodontologico.errors.PacienteAlreadyExistsException;
+import com.devluizfcneto.sistemaodontologico.errors.PacienteNotFoundException;
 import com.devluizfcneto.sistemaodontologico.repositories.PacienteRepository;
 import com.devluizfcneto.sistemaodontologico.services.PacienteService;
 import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
@@ -46,10 +49,12 @@ public class PacienteServiceImpl implements PacienteService {
 	}
 
 	@Override
-	public Boolean remover(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public void remover(Long id) {
+		Optional<Paciente> pacienteExistente = this.pacienteRepository.findById(id);
+		if(!pacienteExistente.isEmpty()) {
+			this.pacienteRepository.delete(pacienteExistente.get());
+		}else {
+			throw new PacienteNotFoundException("Paciente com id fornecido não foi encontrado");
+		}
 	}
-	
-	
 }
