@@ -39,8 +39,11 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public Paciente buscar(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		Optional<Paciente> pacienteExiste = pacienteRepository.findById(id);
+		if(pacienteExiste.isEmpty()) {
+			throw new PacienteNotFoundException("Erro: Não foi possível encontrar o Paciente");
+		}
+		return pacienteExiste.get();
 	}
 
 	@Override
