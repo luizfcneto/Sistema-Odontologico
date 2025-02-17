@@ -1,9 +1,12 @@
 package com.devluizfcneto.sistemaodontologico.validations;
 
+import java.time.LocalDate;
+
 import org.springframework.stereotype.Component;
 
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarPacienteDTO;
 import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
+import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
 
 @Component
 public class CadastrarPacienteValidation {
@@ -18,7 +21,6 @@ public class CadastrarPacienteValidation {
 		this.validateCpf(paciente.getCpf());
 		this.validateNome(paciente.getNome());
 		this.validateDataNascimento(paciente.getDataNascimento());
-		this.validateIdade(paciente.getIdade());
 	}
 	
 	private void validateCpf(String cpf) {
@@ -55,12 +57,11 @@ public class CadastrarPacienteValidation {
 		if(Integer.valueOf(dataNascimentoSplitted[1]) < 0 || Integer.valueOf(dataNascimentoSplitted[1]) > 12) {
 			throw new BadRequestException("Erro ao validar data de nascimento");
 		}
-	}
-	
-	private void validateIdade(int idade) {
-		if(idade < 13) {
-			throw new BadRequestException("Erro ao validar idade do paciente");
-		}
-	}
-	
+		
+		LocalDate data = DateUtils.formatStringToLocalDate(dataNascimento);
+        
+        if (data.isAfter(LocalDate.now().minusYears(13))) {
+            throw new BadRequestException("Paciente deve ter pelo menos 13 anos");
+        }
+	}	
 }
