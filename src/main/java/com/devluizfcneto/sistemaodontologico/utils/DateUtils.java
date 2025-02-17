@@ -1,11 +1,11 @@
 package com.devluizfcneto.sistemaodontologico.utils;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
 
 public class DateUtils {
-	
 	
 	/**
 	 * Transforma data LocalDate para o formato dd/mm/yyyy em String
@@ -13,13 +13,8 @@ public class DateUtils {
 	 * @return String
 	 */
 	public static String formatLocalDateToString(LocalDate date) {
-		return new StringBuilder()
-				.append(date.getDayOfMonth())
-				.append("/")
-				.append(date.getMonthValue())
-				.append("/")
-				.append(date.getYear())
-				.toString();
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	    return date.format(formatter);
 	}
 	
 	/**
@@ -32,7 +27,7 @@ public class DateUtils {
 		try {
 			return LocalDate.of(Integer.valueOf(dateSplitted[2]), Integer.valueOf(dateSplitted[1]), Integer.valueOf(dateSplitted[0]));
 		}catch(Exception ex) {
-			throw new BadRequestException("Erro ao validar data de nascimento: Formato inválido. Use dd/mm/yyyy");
+			throw new BadRequestException("Erro ao validar data: Formato inválido. Use dd/mm/yyyy");
 		}
 	}
 }
