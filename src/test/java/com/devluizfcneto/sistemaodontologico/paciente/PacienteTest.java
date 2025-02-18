@@ -43,7 +43,7 @@ public class PacienteTest {
         Paciente paciente1 = new Paciente("12345678900", "Nome do Paciente", dataNascimento1);
 
         LocalDate dataNascimento2 = LocalDate.of(2000, 1, 1); 
-        Paciente paciente2 = new Paciente("12345678900", "Nome Diferente", dataNascimento2);
+        Paciente paciente2 = new Paciente("12345678900", "Nome do Paciente", dataNascimento1);
 
         assertEquals(paciente1, paciente2);
         assertEquals(paciente1.hashCode(), paciente2.hashCode());

@@ -1,41 +1,36 @@
 package com.devluizfcneto.sistemaodontologico.dtos;
 
-public class CadastrarPacienteDTO {
+import com.devluizfcneto.sistemaodontologico.entities.Paciente;
+import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
 
-	private String cpf;
+public class PacienteMinDTO {
+	
 	private String nome;
 	private String dataNascimento;
 	
-	public CadastrarPacienteDTO() {}
-	
-	public CadastrarPacienteDTO(String cpf, String nome, String dataNascimento) {
-		this.cpf = cpf;
+	public PacienteMinDTO(String nome, String dataNascimento) {
 		this.nome = nome;
 		this.dataNascimento = dataNascimento;
 	}
 	
-	public String getCpf() {
-		return cpf;
-	}
-	
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
+	public PacienteMinDTO(Paciente paciente) {
+		this.nome = paciente.getNome();
+		this.dataNascimento = DateUtils.formatLocalDateToString(paciente.getDataNascimento());
 	}
 	
 	public String getNome() {
 		return nome;
 	}
-	
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-	
 	public String getDataNascimento() {
 		return dataNascimento;
 	}
-	
 	public void setDataNascimento(String dataNascimento) {
 		this.dataNascimento = dataNascimento;
 	}
+	
+	
 	
 }

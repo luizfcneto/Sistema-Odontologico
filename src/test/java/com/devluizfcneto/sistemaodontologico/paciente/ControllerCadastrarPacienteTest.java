@@ -1,95 +1,124 @@
 package com.devluizfcneto.sistemaodontologico.paciente;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.devluizfcneto.sistemaodontologico.controllers.PacienteController;
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarPacienteDTO;
-import com.devluizfcneto.sistemaodontologico.dtos.ErrorDTO;
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
+import com.devluizfcneto.sistemaodontologico.errors.GlobalExceptionHandler;
 import com.devluizfcneto.sistemaodontologico.errors.PacienteAlreadyExistsException;
 import com.devluizfcneto.sistemaodontologico.services.PacienteService;
+import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+@ExtendWith(MockitoExtension.class)
 public class ControllerCadastrarPacienteTest {
+    private final ObjectMapper objectMapper = new ObjectMapper();
+	
+	private MockMvc mockMvc;
 
-	@Mock
+    @Mock
     private PacienteService pacienteService;
 
     @InjectMocks
     private PacienteController pacienteController;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setup() {
+    	objectMapper.setDateFormat(new SimpleDateFormat("dd/MM/yyyy"));
+        mockMvc = MockMvcBuilders.standaloneSetup(pacienteController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     @Test
-    @DisplayName("Testando cadastrar paciente SUCESSO")
-    public void testCadastrarPaciente_Sucesso() {
+    @DisplayName("Deve cadastrar paciente com dados válidos")
+    public void testCadastrarPaciente_Sucesso() throws Exception {
         String dataNascimentoStr = "10/05/1990";
-        CadastrarPacienteDTO pacienteDTO = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
-        LocalDate dataNascimento = LocalDate.of(1990, 5, 10);
-        Paciente paciente = new Paciente("12345678900", "Nome Paciente", dataNascimento);
+        CadastrarPacienteDTO dto = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
+        Paciente pacienteSalvo = new Paciente("12345678900", "Nome Paciente", LocalDate.of(1990, 5, 10));
 
-        when(pacienteService.cadastrar(pacienteDTO)).thenReturn(paciente);
+        when(pacienteService.cadastrar(any(CadastrarPacienteDTO.class))).thenReturn(pacienteSalvo);
+        LocalDate dataNascimento = DateUtils.formatStringToLocalDate(dataNascimentoStr);
+        int idadeEsperada = Period.between(dataNascimento, LocalDate.now()).getYears();
 
-        ResponseEntity<?> response = pacienteController.cadastrarPaciente(pacienteDTO);
+        mockMvc.perform(post("/api/paciente/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.cpf").value("12345678900"))
+                .andExpect(jsonPath("$.nome").value("Nome Paciente"))
+                .andExpect(jsonPath("$.dataNascimento").value("10/05/1990"))
+                .andExpect(jsonPath("$.idade").value(idadeEsperada));
+    }
+    
+    @Test
+    @DisplayName("Deve falhar ao cadastrar paciente com CPF existente")
+    public void testCadastrarPaciente_CpfExistente() throws Exception {
+        String dataNascimentoStr = "10/05/1990";
+        CadastrarPacienteDTO dto = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(paciente, response.getBody());
+        when(pacienteService.cadastrar(any(CadastrarPacienteDTO.class)))
+            .thenThrow(new PacienteAlreadyExistsException("CPF já cadastrado"));
+
+        mockMvc.perform(post("/api/paciente/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("CPF já cadastrado"));
     }
 
     @Test
-    @DisplayName("Testando cadastrar paciente CPF Existente FALHA")
-    public void testCadastrarPaciente_CpfExistente() {
-        String dataNascimentoStr = "10/05/1990";
-        CadastrarPacienteDTO pacienteDTO = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
+    @DisplayName("Deve falhar ao cadastrar paciente com dados inválidos")
+    public void testCadastrarPaciente_ValidacaoFalha() throws Exception {
+                String dataNascimentoStr = "10/05/2020";
+        CadastrarPacienteDTO dto = new CadastrarPacienteDTO("12345678900", "Nome", dataNascimentoStr);
 
-        when(pacienteService.cadastrar(pacienteDTO)).thenThrow(PacienteAlreadyExistsException.class);
+        when(pacienteService.cadastrar(any(CadastrarPacienteDTO.class)))
+            .thenThrow(new BadRequestException("Dados inválidos"));
 
-        assertThrows(PacienteAlreadyExistsException.class, () -> pacienteController.cadastrarPaciente(pacienteDTO));
+        mockMvc.perform(post("/api/paciente/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Dados inválidos"));
     }
 
     @Test
-    @DisplayName("Testando cadastrar paciente validacao FALHA")
-    public void testCadastrarPaciente_ValidacaoFalha() {
+    @DisplayName("Deve retornar erro interno ao ocorrer uma exceção não tratada")
+    public void testCadastrarPaciente_ErroGenerico() throws Exception {
         String dataNascimentoStr = "10/05/1990";
-        CadastrarPacienteDTO pacienteDTO = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
+        CadastrarPacienteDTO dto = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
 
-        when(pacienteService.cadastrar(pacienteDTO)).thenThrow(BadRequestException.class);
+        when(pacienteService.cadastrar(any(CadastrarPacienteDTO.class)))
+            .thenThrow(new RuntimeException("Erro inesperado"));
 
-        assertThrows(BadRequestException.class, () -> pacienteController.cadastrarPaciente(pacienteDTO));
-    }
-
-    @Test
-    @DisplayName("Testando cadastrar paciente Erro Genérico")
-    public void testCadastrarPaciente_ErroGenerico() {
-        String dataNascimentoStr = "10/05/1990";
-        CadastrarPacienteDTO pacienteDTO = new CadastrarPacienteDTO("12345678900", "Nome Paciente", dataNascimentoStr);
-        String mensagemErro = "Erro genérico";
-
-        when(pacienteService.cadastrar(pacienteDTO)).thenThrow(new RuntimeException(mensagemErro));
-
-        ResponseEntity<?> response = pacienteController.cadastrarPaciente(pacienteDTO);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody() instanceof ErrorDTO);
-        assertEquals(mensagemErro, ((ErrorDTO) response.getBody()).getMessage());
+        mockMvc.perform(post("/api/paciente/")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Ocorreu um erro interno no servidor."));
     }
 }

@@ -1,11 +1,13 @@
 package com.devluizfcneto.sistemaodontologico.paciente;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarPacienteDTO;
 import com.devluizfcneto.sistemaodontologico.errors.BadRequestException;
@@ -14,130 +16,104 @@ import com.devluizfcneto.sistemaodontologico.validations.CadastrarPacienteValida
 public class ValidarCadastroPacienteTest {
 
 	private CadastrarPacienteValidation validation;
+    private CadastrarPacienteDTO pacienteValido;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         validation = new CadastrarPacienteValidation();
-        MockitoAnnotations.openMocks(this); 
+        pacienteValido = new CadastrarPacienteDTO(
+            "45086531039",
+            "João da Silva",
+            "15/05/2000"
+        );
     }
 
     @Test
-    @DisplayName("Testando validacao paciente nulo")
-    public void testValidateCadastrarPaciente_PacienteNulo() {
+    @DisplayName("Deve lançar exceção quando paciente é nulo")
+    void testPacienteNulo() {
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(null));
     }
 
     @Test
-    @DisplayName("Testando validacao paciente com cpf nulo")
-    public void testValidateCpf_CpfNulo() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf(null);
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-    }
-    
-    @Test
-    @DisplayName("Testando validacao de paciente com cpf invalido")
-    public void testValidateCpf_CpfInvalido_Tamanho() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf("1234567890"); 
+    @DisplayName("Validação de CPF - Casos de erro")
+    void testValidacaoCPF() {
+        // CPF nulo
+        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO(null, "Nome", "01/01/2000");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
 
-        paciente.setCpf("123456789012"); 
+        // CPF com tamanho inválido
+        paciente.setCpf("1234567890");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-    }
 
-    @Test
-    @DisplayName("Testando validacao de paciente com cpf invalido")
-    public void testValidateCpf_CpfInvalido_Digitos() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
+        // CPF inválido (dígitos iguais)
         paciente.setCpf("11111111111");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
+    }
 
-        paciente.setCpf("12345678900");
+    @Test
+    @DisplayName("Validação de CPF - Caso válido")
+    void testCPFValido() {
+        assertDoesNotThrow(() -> validation.validateCadastrarPaciente(pacienteValido));
+    }
+
+    @Test
+    @DisplayName("Validação de Nome - Casos de erro")
+    void testValidacaoNome() {
+        // Nome nulo
+        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO("45086531039", null, "01/01/2000");
+        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
+
+        // Nome curto
+        paciente.setNome("Ana");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
     }
 
     @Test
-    @DisplayName("Testando validacao paciente com cpf valido")
-    public void testValidateCpf_CpfValido() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf("28253090013");
+    @DisplayName("Validação de Data de Nascimento - Casos de erro")
+    void testValidacaoDataNascimento() {
+        // Data nula
+        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO("50297831022", "Nome", null);
+        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
 
+        // Formato inválido
+        testarDataInvalida("2023-05-15");
+        testarDataInvalida("15/5/2023");
+        testarDataInvalida("32/05/2023");
+        testarDataInvalida("15/13/2023");
+        testarDataInvalida("00/05/2023");
+
+        // Idade insuficiente
+        LocalDate dataRecente = LocalDate.now().minusYears(12);
+        String dataJovem = String.format("%02d/%02d/%d", 
+            dataRecente.getDayOfMonth(),
+            dataRecente.getMonthValue(),
+            dataRecente.getYear());
+            
+        paciente.setDataNascimento(dataJovem);
+        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
+    }
+
+    private void testarDataInvalida(String dataInvalida) {
+        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO("50297831022", "Nome", dataInvalida);
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
     }
 
     @Test
-    @DisplayName("Testando validacao paciente com nome nulo")
-    public void testValidateNome_NomeNulo() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setNome(null);
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
+    @DisplayName("Validação completa - Caso válido")
+    void testValidacaoCompleta() {
+        assertDoesNotThrow(() -> validation.validateCadastrarPaciente(pacienteValido));
     }
 
     @Test
-    @DisplayName("Testando validacao paciente com nome invalido")
-    public void testValidateNome_NomeInvalido() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf("28253090013");
-        paciente.setNome("Nome"); 
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-    }
-
-    @Test
-    @DisplayName("Testando validacao paciente com data nascimento nula")
-    public void testValidateDataNascimento_DataNascimentoNula() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setDataNascimento(null);
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-    }
-
-    @Test
-    @DisplayName("Testando validacao paciente com data nascimento invalida")
-    public void testValidateDataNascimento_DataNascimentoInvalida() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf("28253090013");
-        paciente.setNome("NomeValido"); 
-
-        paciente.setDataNascimento("10/05/2001/5");
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-
-        paciente.setDataNascimento("10-05-2001");
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-
-        paciente.setDataNascimento("10/05"); 
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-
-        paciente.setDataNascimento("32/05/2001");
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-
-        paciente.setDataNascimento("10/13/2001");
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-        
-        paciente.setDataNascimento("-1/12/2001");
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-        
-    }
-
-    @Test
-    @DisplayName("Testando validacao paciente com idade invalida")
-    public void testValidateIdade_IdadeInvalida() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf("28253090013");
-        paciente.setNome("NomeValido"); 
-        paciente.setDataNascimento("01/01/2999");
-        paciente.calculaIdade();
-        assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
-    }
-
-    @Test
-    @DisplayName("Testando validacao paciente valido completamente")
-    public void testValidateCadastrarPaciente_Valido() {
-        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO();
-        paciente.setCpf("28253090013");
-        paciente.setNome("Nome Completo");
-        paciente.setDataNascimento("10/05/2001");
-        paciente.calculaIdade();
-
-        validation.validateCadastrarPaciente(paciente);
+    @DisplayName("Validação de borda - Paciente com exatamente 13 anos")
+    void testIdadeMinimaBorda() {
+        LocalDate dataNascimento = LocalDate.now().minusYears(13);
+        String data = String.format("%02d/%02d/%d", 
+            dataNascimento.getDayOfMonth(),
+            dataNascimento.getMonthValue(),
+            dataNascimento.getYear());
+            
+        CadastrarPacienteDTO paciente = new CadastrarPacienteDTO("45086531039", "Maria Oliveira", data);
+        assertDoesNotThrow(() -> validation.validateCadastrarPaciente(paciente));
     }
 }

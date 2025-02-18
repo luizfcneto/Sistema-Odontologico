@@ -31,6 +31,19 @@ public class GlobalExceptionHandler {
 				.body(new ErrorDTO(pacienteNotFoundException.getMessage()));
 	}
 	
+	@ExceptionHandler(ConsultaAlreadyMadeException.class)
+	public ResponseEntity<ErrorDTO> handleConsultaAlreadyMadeException(ConsultaAlreadyMadeException consultaAlreadyMadeException){
+		return ResponseEntity
+				.status(consultaAlreadyMadeException.getCode())
+				.body(new ErrorDTO(consultaAlreadyMadeException.getMessage()));
+	}
+	
+	@ExceptionHandler(ConsultaConflictedException.class)
+	public ResponseEntity<ErrorDTO> handleconsultaConflictedException(ConsultaConflictedException consultaConflictedException){
+		return ResponseEntity
+				.status(consultaConflictedException.getCode())
+				.body(new ErrorDTO(consultaConflictedException.getMessage()));
+	}
 	
 	@ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDTO> handleGenericException(Exception ex) {

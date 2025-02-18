@@ -1,13 +1,17 @@
 package com.devluizfcneto.sistemaodontologico.entities;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -25,6 +29,10 @@ public class Paciente {
 	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
 	
+	@OneToMany(mappedBy = "paciente")
+	@JsonManagedReference
+	private List<Consulta> consultas;
+	
 	public Paciente() {};
 	
 	public Paciente(String cpf, String nome, LocalDate dataNascimento) {
@@ -41,6 +49,13 @@ public class Paciente {
 		this.dataNascimento = dataNascimento;
 	}
 
+	public List<Consulta> getConsultas() {
+		return consultas;
+	}
+
+	public void setConsultas(List<Consulta> consultas) {
+		this.consultas = consultas;
+	}
 
 	public Long getId() {
 		return id;
@@ -74,23 +89,19 @@ public class Paciente {
 		this.dataNascimento = dataNascimento;
 	}
 
-
 	@Override
-	public int hashCode() {
-		return Objects.hash(cpf);
-	}
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Paciente paciente = (Paciente) o;
+        return Objects.equals(cpf, paciente.cpf) 
+        		&& Objects.equals(nome, paciente.nome) 
+        		&& Objects.equals(dataNascimento, paciente.dataNascimento);
+    }
 
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Paciente other = (Paciente) obj;
-		return Objects.equals(cpf, other.cpf);
-	} 
+    @Override
+    public int hashCode() {
+        return Objects.hash(cpf, nome, dataNascimento);
+    }
 		
 }

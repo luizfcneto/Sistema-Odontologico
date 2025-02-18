@@ -27,7 +27,6 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public Paciente cadastrar(CadastrarPacienteDTO paciente) {
-		paciente.calculaIdade();
 		this.cadastrarPacienteValidation.validateCadastrarPaciente(paciente);
 		Paciente pacienteExistente = pacienteRepository.findByCpf(paciente.getCpf());
 		if(pacienteExistente != null) {
@@ -39,8 +38,11 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public Paciente buscar(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		Optional<Paciente> pacienteExiste = pacienteRepository.findById(id);
+		if(pacienteExiste.isEmpty()) {
+			throw new PacienteNotFoundException("Erro: Não foi possível encontrar o Paciente");
+		}
+		return pacienteExiste.get();
 	}
 
 	@Override
@@ -50,11 +52,7 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public void remover(Long id) {
-		Optional<Paciente> pacienteExistente = this.pacienteRepository.findById(id);
-		if(!pacienteExistente.isEmpty()) {
-			this.pacienteRepository.delete(pacienteExistente.get());
-		}else {
-			throw new PacienteNotFoundException("Paciente com id fornecido não foi encontrado");
-		}
+		Paciente pacienteExistente = this.buscar(id);
+		this.pacienteRepository.delete(pacienteExistente);
 	}
 }
