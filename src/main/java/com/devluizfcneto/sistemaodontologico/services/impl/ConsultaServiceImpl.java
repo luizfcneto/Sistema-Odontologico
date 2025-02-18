@@ -50,7 +50,7 @@ public class ConsultaServiceImpl implements ConsultaService{
 		return response;
 	}
 	
-	private Boolean checaPacientePossuiConsultaFutura(Paciente paciente, LocalDate now) {
+	public Boolean checaPacientePossuiConsultaFutura(Paciente paciente, LocalDate now) {
 		Boolean pacientePossuiConsultaFutura = this.consultaRepository.existeConsultaFutura(paciente.getId(), now);
 		if(pacientePossuiConsultaFutura) {
 			throw new ConsultaAlreadyMadeException("Erro, paciente já possui consulta marcada");
@@ -58,7 +58,7 @@ public class ConsultaServiceImpl implements ConsultaService{
 		return pacientePossuiConsultaFutura;
 	}
 	
-	private void checaColisaoConsulta(LocalDate now, LocalTime horaInicial, LocalTime horaFinal){
+	public void checaColisaoConsulta(LocalDate now, LocalTime horaInicial, LocalTime horaFinal){
 		List<Consulta> consultasColididas = this.consultaRepository.findConflitosHorario(now, horaInicial, horaFinal);
 		if(!consultasColididas.isEmpty()) {
 			throw new ConsultaConflictedException("Erro, já existe consulta marcada dentro deste horário");

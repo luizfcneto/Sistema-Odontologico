@@ -10,7 +10,9 @@ import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
 
 @Component
 public class CadastrarConsultaValidation {
-
+	private final int CONSULTORIO_HORA_INICIO_FUNCIONAMENTO = 8;
+	private final int CONSULTORIO_HORA_FIM_FUNCIONAMENTO = 19;
+	
 	public CadastrarConsultaValidation() {}
 	
 	public void validateCadastrarConsulta(CadastrarConsultaDTO consultaDTO) {
@@ -21,7 +23,9 @@ public class CadastrarConsultaValidation {
 		this.validatePacienteId(consultaDTO.getPacienteId());
 		this.validateData(consultaDTO.getData());
 		this.validateHorario(consultaDTO.getHoraInicial());
-		this.validateHorario(consultaDTO.getHoraFinal());	
+		this.validateHorario(consultaDTO.getHoraFinal());
+		consultaDTO.calcularTempo();			
+		this.validateTempo(consultaDTO.getTempo());
 		this.validateCompareHorarios(consultaDTO.getHoraInicial(), consultaDTO.getHoraFinal());
 	}
 	
@@ -50,8 +54,12 @@ public class CadastrarConsultaValidation {
 			throw new BadRequestException("Erro ao validar horario");
 		}
 
-		if(!HorarioValidation.isValid(horario)) {
-			throw new BadRequestException("Erro ao validar horario");
+		HorarioValidation.isValid(horario);
+	}
+	
+	private void validateTempo(String tempo) {
+		if(tempo == null || tempo.length() != 4) {
+			throw new BadRequestException("Erro ao validar tempo");
 		}
 	}
 	
@@ -61,6 +69,14 @@ public class CadastrarConsultaValidation {
 		
 		int horaFim = Integer.valueOf(horarioFinal.substring(0, 2));
 		int minutosFim = Integer.valueOf(horarioFinal.substring(2, 4));
+		
+		if(horaInicio < CONSULTORIO_HORA_INICIO_FUNCIONAMENTO 
+				|| horaInicio >= CONSULTORIO_HORA_FIM_FUNCIONAMENTO
+				|| horaFim < CONSULTORIO_HORA_INICIO_FUNCIONAMENTO 
+				|| horaFim >= CONSULTORIO_HORA_FIM_FUNCIONAMENTO) {
+			throw new BadRequestException("Horario de funcionamento do consutorio é de 08:00 até as 19:00");
+
+		}
 		
 		if(horaFim < horaInicio || (horaFim == horaInicio && minutosFim < minutosInicio)) {
 			throw new BadRequestException("Erro ao validar horario");

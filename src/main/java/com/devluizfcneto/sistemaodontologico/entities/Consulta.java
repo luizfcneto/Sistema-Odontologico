@@ -115,7 +115,7 @@ public class Consulta {
 		return this.paciente;
 	}
 
-	public void setPacienteId(Paciente paciente) {
+	public void setPaciente(Paciente paciente) {
 		this.paciente = paciente;
 	}
 	@Override

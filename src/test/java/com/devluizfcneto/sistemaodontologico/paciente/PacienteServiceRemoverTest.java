@@ -7,18 +7,20 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 import com.devluizfcneto.sistemaodontologico.errors.PacienteNotFoundException;
 import com.devluizfcneto.sistemaodontologico.repositories.PacienteRepository;
 import com.devluizfcneto.sistemaodontologico.services.impl.PacienteServiceImpl;
 
+// JUnit versão 5
+@ExtendWith(MockitoExtension.class)
 public class PacienteServiceRemoverTest {
 
 	@Mock
@@ -27,10 +29,11 @@ public class PacienteServiceRemoverTest {
 	@InjectMocks
 	private PacienteServiceImpl pacienteService;
 	
-	@BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+//	JUnit versão 4
+//	@BeforeEach
+//    public void setUp() {
+//        MockitoAnnotations.openMocks(this);
+//    }
 
 	
 	@Test
