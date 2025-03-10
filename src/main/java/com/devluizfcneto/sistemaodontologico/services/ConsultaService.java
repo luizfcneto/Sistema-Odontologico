@@ -14,6 +14,6 @@ public interface ConsultaService {
 	public ConsultaResponseDTO cadastrar(CadastrarConsultaDTO consulta);
 	public List<Consulta> listaConsulta();
 	public Boolean atualizaConsulta();
-	public void removerConsulta();
+	public void remover(Long id);
 	
 }
