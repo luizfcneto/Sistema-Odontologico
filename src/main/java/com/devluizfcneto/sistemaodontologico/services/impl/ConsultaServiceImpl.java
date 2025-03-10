@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,18 +37,18 @@ public class ConsultaServiceImpl implements ConsultaService{
 		this.cadastrarConsultaValidation.validateCadastrarConsulta(consultaDTO);
 		
 		Paciente pacienteExiste = this.pacienteService.buscar(consultaDTO.getPacienteId());
-		
+
 		LocalDate now = LocalDate.now();
 		this.checaPacientePossuiConsultaFutura(pacienteExiste, now);
 		
 		this.checaColisaoConsulta(
-				now, 
+				DateUtils.formatStringToLocalDate(consultaDTO.getData()),
 				TimeUtils.formatStringToLocalTime(consultaDTO.getHoraInicial()), 
 				TimeUtils.formatStringToLocalTime(consultaDTO.getHoraFinal()));
 		
 		Consulta novaConsulta = new Consulta(consultaDTO, pacienteExiste);
-		ConsultaResponseDTO response = new ConsultaResponseDTO(this.consultaRepository.save(novaConsulta));
-		return response;
+		return new ConsultaResponseDTO(this.consultaRepository.save(novaConsulta));
+
 	}
 	
 	public Boolean checaPacientePossuiConsultaFutura(Paciente paciente, LocalDate now) {
@@ -58,8 +59,8 @@ public class ConsultaServiceImpl implements ConsultaService{
 		return pacientePossuiConsultaFutura;
 	}
 	
-	public void checaColisaoConsulta(LocalDate now, LocalTime horaInicial, LocalTime horaFinal){
-		List<Consulta> consultasColididas = this.consultaRepository.findConflitosHorario(now, horaInicial, horaFinal);
+	public void checaColisaoConsulta(LocalDate dataConsulta, LocalTime horaInicial, LocalTime horaFinal){
+		List<Consulta> consultasColididas = this.consultaRepository.findConflitosHorario(dataConsulta, horaInicial, horaFinal);
 		if(!consultasColididas.isEmpty()) {
 			throw new ConsultaConflictedException("Erro, já existe consulta marcada dentro deste horário");
 		}

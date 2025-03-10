@@ -64,23 +64,28 @@ public class CadastrarConsultaValidation {
 	}
 	
 	private void validateCompareHorarios(String horarioInicial, String horarioFinal) {
-		int horaInicio = Integer.valueOf(horarioInicial.substring(0,2));
-		int minutosInicio = Integer.valueOf(horarioInicial.substring(2, 4));
-		
-		int horaFim = Integer.valueOf(horarioFinal.substring(0, 2));
-		int minutosFim = Integer.valueOf(horarioFinal.substring(2, 4));
-		
-		if(horaInicio < CONSULTORIO_HORA_INICIO_FUNCIONAMENTO 
-				|| horaInicio >= CONSULTORIO_HORA_FIM_FUNCIONAMENTO
-				|| horaFim < CONSULTORIO_HORA_INICIO_FUNCIONAMENTO 
-				|| horaFim >= CONSULTORIO_HORA_FIM_FUNCIONAMENTO) {
-			throw new BadRequestException("Horario de funcionamento do consutorio é de 08:00 até as 19:00");
+		try {
+			int horaInicio = Integer.parseInt(horarioInicial.substring(0,2));
+			int minutosInicio = Integer.parseInt(horarioInicial.substring(2, 4));
 
+			int horaFim = Integer.parseInt(horarioFinal.substring(0, 2));
+			int minutosFim = Integer.parseInt(horarioFinal.substring(2, 4));
+
+			if(horaInicio < CONSULTORIO_HORA_INICIO_FUNCIONAMENTO
+					|| horaInicio >= CONSULTORIO_HORA_FIM_FUNCIONAMENTO
+					|| horaFim < CONSULTORIO_HORA_INICIO_FUNCIONAMENTO
+					|| horaFim >= CONSULTORIO_HORA_FIM_FUNCIONAMENTO) {
+				throw new BadRequestException("Horario de funcionamento do consutorio é de 08:00 até as 19:00");
+			}
+
+			if(horaFim < horaInicio || (horaFim == horaInicio && minutosFim < minutosInicio)) {
+				throw new BadRequestException("Erro ao validar horario");
+			}
+
+		} catch (NumberFormatException e) {
+			throw new BadRequestException("Horario invalido");
 		}
-		
-		if(horaFim < horaInicio || (horaFim == horaInicio && minutosFim < minutosInicio)) {
-			throw new BadRequestException("Erro ao validar horario");
-		}
-	}	
+
+	}
 	
 }
