@@ -50,11 +50,11 @@ public class CadastrarPacienteValidation {
 			throw new BadRequestException("Erro ao validar data de nascimento");
 		}
 		
-		if(Integer.valueOf(dataNascimentoSplitted[0]) < 1 || Integer.valueOf(dataNascimentoSplitted[0]) > 31) {
+		if(Integer.parseInt(dataNascimentoSplitted[0]) < 1 || Integer.parseInt(dataNascimentoSplitted[0]) > 31) {
 			throw new BadRequestException("Erro ao validar data de nascimento");
 		}
 		
-		if(Integer.valueOf(dataNascimentoSplitted[1]) < 0 || Integer.valueOf(dataNascimentoSplitted[1]) > 12) {
+		if(Integer.parseInt(dataNascimentoSplitted[1]) < 0 || Integer.parseInt(dataNascimentoSplitted[1]) > 12) {
 			throw new BadRequestException("Erro ao validar data de nascimento");
 		}
 		

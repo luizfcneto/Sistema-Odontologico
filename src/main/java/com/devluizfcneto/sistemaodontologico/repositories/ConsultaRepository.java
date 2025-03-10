@@ -15,17 +15,16 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long>{
 	@Query("""
 			SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Consulta c 
 				WHERE c.paciente.id = :pacienteId AND c.data > :dataAtual
-	   """)
+	""")
 	boolean existeConsultaFutura(@Param("pacienteId") Long pacienteId, @Param("dataAtual") LocalDate dataAtual);
 
 	@Query("""
-			SELECT c FROM Consulta c WHERE c.data = :dataConsulta AND
-			(	(c.horaInicial BETWEEN :horaInicial AND :horaFinal) OR
-				(c.horaFinal BETWEEN :horaInicial AND :horaFinal) OR
-				(:horaInicial BETWEEN c.horaInicial AND c.horaFinal) OR
-				(:horaFinal BETWEEN c.horaInicial AND c.horaFinal)
-			)
-		""")
+		SELECT c FROM Consulta c
+		WHERE c.data = :dataConsulta AND
+		(
+			(c.horaInicial < :horaFinal AND c.horaFinal > :horaInicial)
+		)
+	""")
 	List<Consulta> findConflitosHorario(
 			@Param("dataConsulta") LocalDate dataConsulta,
 		    @Param("horaInicial") LocalTime horaInicial,

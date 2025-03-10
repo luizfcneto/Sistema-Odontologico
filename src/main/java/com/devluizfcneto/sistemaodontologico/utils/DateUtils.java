@@ -25,7 +25,7 @@ public class DateUtils {
 	public static LocalDate formatStringToLocalDate(String date) {
 		String[] dateSplitted = date.split("/");
 		try {
-			return LocalDate.of(Integer.valueOf(dateSplitted[2]), Integer.valueOf(dateSplitted[1]), Integer.valueOf(dateSplitted[0]));
+			return LocalDate.of(Integer.parseInt(dateSplitted[2]), Integer.parseInt(dateSplitted[1]), Integer.parseInt(dateSplitted[0]));
 		}catch(Exception ex) {
 			throw new BadRequestException("Erro ao validar data: Formato inválido. Use dd/mm/yyyy");
 		}
