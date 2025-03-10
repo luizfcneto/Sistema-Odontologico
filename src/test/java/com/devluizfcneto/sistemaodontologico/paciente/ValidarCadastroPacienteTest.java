@@ -37,15 +37,12 @@ public class ValidarCadastroPacienteTest {
     @Test
     @DisplayName("Validação de CPF - Casos de erro")
     void testValidacaoCPF() {
-        // CPF nulo
         CadastrarPacienteDTO paciente = new CadastrarPacienteDTO(null, "Nome", "01/01/2000");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
 
-        // CPF com tamanho inválido
         paciente.setCpf("1234567890");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
 
-        // CPF inválido (dígitos iguais)
         paciente.setCpf("11111111111");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
     }
@@ -59,11 +56,9 @@ public class ValidarCadastroPacienteTest {
     @Test
     @DisplayName("Validação de Nome - Casos de erro")
     void testValidacaoNome() {
-        // Nome nulo
         CadastrarPacienteDTO paciente = new CadastrarPacienteDTO("45086531039", null, "01/01/2000");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
 
-        // Nome curto
         paciente.setNome("Ana");
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
     }
@@ -71,18 +66,15 @@ public class ValidarCadastroPacienteTest {
     @Test
     @DisplayName("Validação de Data de Nascimento - Casos de erro")
     void testValidacaoDataNascimento() {
-        // Data nula
         CadastrarPacienteDTO paciente = new CadastrarPacienteDTO("50297831022", "Nome", null);
         assertThrows(BadRequestException.class, () -> validation.validateCadastrarPaciente(paciente));
 
-        // Formato inválido
         testarDataInvalida("2023-05-15");
         testarDataInvalida("15/5/2023");
         testarDataInvalida("32/05/2023");
         testarDataInvalida("15/13/2023");
         testarDataInvalida("00/05/2023");
 
-        // Idade insuficiente
         LocalDate dataRecente = LocalDate.now().minusYears(12);
         String dataJovem = String.format("%02d/%02d/%d", 
             dataRecente.getDayOfMonth(),

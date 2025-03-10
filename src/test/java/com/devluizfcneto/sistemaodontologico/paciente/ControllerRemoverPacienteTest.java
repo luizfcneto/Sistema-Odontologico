@@ -42,11 +42,9 @@ public class ControllerRemoverPacienteTest {
     @Test
     @DisplayName("Deve retornar 204 No Content ao remover paciente existente")
     void removerPaciente_Sucesso() throws Exception {
-        // Arrange
         Long id = 1L;
         doNothing().when(pacienteService).remover(id);
 
-        // Act & Assert
         mockMvc.perform(delete("/api/paciente/{id}", id))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -57,12 +55,10 @@ public class ControllerRemoverPacienteTest {
     @Test
     @DisplayName("Deve retornar 404 Not Found ao tentar remover paciente inexistente")
     void removerPaciente_NaoEncontrado() throws Exception {
-        // Arrange
         Long id = 999L;
         doThrow(new PacienteNotFoundException("Paciente não encontrado"))
             .when(pacienteService).remover(id);
 
-        // Act & Assert
         mockMvc.perform(delete("/api/paciente/{id}", id))
                 .andDo(print())
                 .andExpect(status().isNotFound())
@@ -72,13 +68,11 @@ public class ControllerRemoverPacienteTest {
     @Test
     @DisplayName("Deve retornar 500 Internal Server Error em caso de erro inesperado")
     void removerPaciente_ErroInterno() throws Exception {
-        // Arrange
         Long id = 1L;
         String errorMessage = "Ocorreu um erro interno no servidor.";
         doThrow(new RuntimeException(errorMessage))
             .when(pacienteService).remover(id);
 
-        // Act & Assert
         mockMvc.perform(delete("/api/paciente/{id}", id))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
