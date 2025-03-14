@@ -3,10 +3,7 @@ package com.devluizfcneto.sistemaodontologico.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarConsultaDTO;
 import com.devluizfcneto.sistemaodontologico.dtos.ConsultaResponseDTO;
@@ -24,5 +21,11 @@ public class ConsultaController {
 		ConsultaResponseDTO consultaCadastrada = this.consultaService.cadastrar(consulta);
 		return ResponseEntity.status(HttpStatus.CREATED).body(consultaCadastrada);
 	}
-	
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> removerConsulta(@PathVariable(required = true, name = "id") Long id){
+		System.out.println("Remover consulta do id: " + id);
+		this.consultaService.remover(id);
+		return ResponseEntity.noContent().build();
+	}
 }

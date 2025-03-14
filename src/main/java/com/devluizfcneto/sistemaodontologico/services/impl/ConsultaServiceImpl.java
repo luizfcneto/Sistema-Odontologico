@@ -79,9 +79,7 @@ public class ConsultaServiceImpl implements ConsultaService{
 	}
 
 	@Override
-	public void removerConsulta() {
-		// TODO Auto-generated method stub
-		
+	public void remover(Long id) {
+		this.consultaRepository.deleteById(id);
 	}
-	
 }
