@@ -15,9 +15,7 @@ import com.devluizfcneto.sistemaodontologico.entities.Consulta;
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 
 public class ConsultaResponseDTOTest {
-
-	
-	@Test
+    @Test
     @DisplayName("Deve criar ConsultaResponseDTO com construtor que recebe Consulta")
     void testCriarConsultaResponseDTOComConsulta() {
         LocalDate data = LocalDate.of(2024, 12, 31);
@@ -75,7 +73,8 @@ public class ConsultaResponseDTOTest {
     @Test
     @DisplayName("Deve retornar e definir a data corretamente")
     void testData() {
-        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", "Data"));
+        String dataNascimento = "30/01/1996";
+        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", dataNascimento));
         consultaDTO.setData("01/01/2025");
         assertEquals("01/01/2025", consultaDTO.getData());
     }
@@ -83,7 +82,8 @@ public class ConsultaResponseDTOTest {
     @Test
     @DisplayName("Deve retornar e definir horaInicial corretamente")
     void testHoraInicial() {
-        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", "Data"));
+        String dataNascimento = "30/01/1996";
+        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", dataNascimento));
         consultaDTO.setHoraInicial("12:00");
         assertEquals("12:00", consultaDTO.getHoraInicial());
     }
@@ -91,7 +91,8 @@ public class ConsultaResponseDTOTest {
     @Test
     @DisplayName("Deve retornar e definir horaFinal corretamente")
     void testHoraFinal() {
-        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", "Data"));
+        String dataNascimento = "30/01/1996";
+        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", dataNascimento));
         consultaDTO.setHoraFinal("13:00");
         assertEquals("13:00", consultaDTO.getHoraFinal());
     }
@@ -99,7 +100,8 @@ public class ConsultaResponseDTOTest {
     @Test
     @DisplayName("Deve retornar e definir tempo corretamente")
     void testTempo() {
-        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", "Data"));
+        String dataNascimento = "30/01/1996";
+        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", dataNascimento));
         consultaDTO.setTempo("02:00");
         assertEquals("02:00", consultaDTO.getTempo());
     }
@@ -107,8 +109,9 @@ public class ConsultaResponseDTOTest {
     @Test
     @DisplayName("Deve retornar e definir paciente corretamente")
     void testPaciente() {
+        String dataNascimento = "30/01/1996";
         PacienteMinDTO paciente = new PacienteMinDTO("José Almeida", "01/01/2000");
-        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", "Data"));
+        ConsultaResponseDTO consultaDTO = new ConsultaResponseDTO("30/12/2024", "10:00", "11:00", "01:00", new PacienteMinDTO("Nome", dataNascimento));
         consultaDTO.setPaciente(paciente);
         assertEquals(paciente, consultaDTO.getPaciente());
     }

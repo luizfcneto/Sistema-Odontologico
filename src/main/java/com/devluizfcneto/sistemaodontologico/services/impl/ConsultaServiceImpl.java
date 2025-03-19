@@ -3,9 +3,14 @@ package com.devluizfcneto.sistemaodontologico.services.impl;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
+import com.devluizfcneto.sistemaodontologico.validations.ListarConsultaParamsValidation;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.devluizfcneto.sistemaodontologico.dtos.CadastrarConsultaDTO;
@@ -31,6 +36,9 @@ public class ConsultaServiceImpl implements ConsultaService{
 	
 	@Autowired
 	private ConsultaRepository consultaRepository;
+
+	@Autowired
+	private ListarConsultaParamsValidation listarConsultaParamsValidation;
 	
 	@Override
 	public ConsultaResponseDTO cadastrar(CadastrarConsultaDTO consultaDTO) {
@@ -67,12 +75,6 @@ public class ConsultaServiceImpl implements ConsultaService{
 	}
 
 	@Override
-	public List<Consulta> listaConsulta() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Boolean atualizaConsulta() {
 		// TODO Auto-generated method stub
 		return null;
@@ -81,5 +83,34 @@ public class ConsultaServiceImpl implements ConsultaService{
 	@Override
 	public void remover(Long id) {
 		this.consultaRepository.deleteById(id);
+	}
+
+	@Override
+	public List<ConsultaResponseDTO> listarConsultas(String dataInicial, String dataFinal, String direction) {
+		this.listarConsultaParamsValidation.validate(dataInicial, dataFinal);
+		LocalDate dataInicio = dataInicial != null ? DateUtils.formatStringToLocalDate(dataInicial) : null;
+		LocalDate dataFim = dataFinal != null ? DateUtils.formatStringToLocalDate(dataFinal) : null;
+
+		Specification<Consulta> specification = (root, query, criteriaBuilder) -> {
+			Predicate predicate = criteriaBuilder.conjunction();
+			if(dataInicio != null) {
+				predicate = criteriaBuilder.and(predicate, criteriaBuilder.greaterThanOrEqualTo(root.get("data"), dataInicio));
+			}
+			if(dataFim != null) {
+				predicate = criteriaBuilder.and(predicate, criteriaBuilder.lessThanOrEqualTo(root.get("data"), dataFim));
+			}
+			return predicate;
+		};
+
+		Sort sortData = direction == null || direction.equalsIgnoreCase("asc") ?
+				Sort.by("data").ascending() :
+				Sort.by("data").descending();
+		Sort sort = sortData.and(Sort.by("horaInicial").ascending());
+
+		List<Consulta> consultas = this.consultaRepository.findAll(specification, sort);
+
+		return consultas.stream()
+				.map(consulta -> new ConsultaResponseDTO(consulta))
+				.collect(Collectors.toList());
 	}
 }

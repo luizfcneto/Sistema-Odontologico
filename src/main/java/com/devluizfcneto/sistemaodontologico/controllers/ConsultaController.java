@@ -15,6 +15,15 @@ public class ConsultaController {
 	
 	@Autowired
 	private ConsultaService consultaService;
+
+	@GetMapping("/list")
+	public ResponseEntity<?> listarConsultas(
+			@RequestParam(required = false) String dataInicial,
+			@RequestParam(required = false) String dataFinal,
+			@RequestParam(required = false) String direction){
+		return ResponseEntity.ok(this.consultaService.listarConsultas(dataInicial, dataFinal, direction));
+	}
+
 	
 	@PostMapping("/")
 	public ResponseEntity<ConsultaResponseDTO> cadastrarConsulta(@RequestBody CadastrarConsultaDTO consulta){	
