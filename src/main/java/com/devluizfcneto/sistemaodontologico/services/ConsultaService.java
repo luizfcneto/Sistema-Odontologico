@@ -12,8 +12,7 @@ import com.devluizfcneto.sistemaodontologico.entities.Consulta;
 @Service
 public interface ConsultaService {
 	public ConsultaResponseDTO cadastrar(CadastrarConsultaDTO consulta);
-	public List<Consulta> listaConsulta();
 	public Boolean atualizaConsulta();
 	public void remover(Long id);
-	
+	public List<ConsultaResponseDTO> listarConsultas(String dataInicial, String dataFinal, String direction);
 }
