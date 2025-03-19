@@ -12,8 +12,7 @@ import com.devluizfcneto.sistemaodontologico.dtos.PacienteMinDTO;
 import com.devluizfcneto.sistemaodontologico.entities.Paciente;
 
 public class PacienteMinDTOTest {
-
-	@Test
+    @Test
     @DisplayName("Deve criar PacienteMinDTO com construtor que recebe Paciente")
     void testCriarPacienteMinDTOComPaciente() {
         LocalDate dataNascimento = LocalDate.of(2000, 05, 15);
@@ -26,6 +25,7 @@ public class PacienteMinDTOTest {
         assertNotNull(pacienteDTO);
         assertEquals("João da Silva", pacienteDTO.getNome());
         assertEquals("15/05/2000", pacienteDTO.getDataNascimento());
+        assertEquals(24, pacienteDTO.getIdade());
     }
 
     @Test
@@ -36,12 +36,13 @@ public class PacienteMinDTOTest {
         assertNotNull(pacienteDTO);
         assertEquals("Maria Oliveira", pacienteDTO.getNome());
         assertEquals("20/06/1995", pacienteDTO.getDataNascimento());
+        assertEquals(29, pacienteDTO.getIdade());
     }
 
     @Test
     @DisplayName("Deve retornar e definir o nome corretamente")
     void testNome() {
-        PacienteMinDTO pacienteDTO = new PacienteMinDTO("Nome", "Data");
+        PacienteMinDTO pacienteDTO = new PacienteMinDTO("Nome", "30/01/1996");
         pacienteDTO.setNome("Novo Nome");
         assertEquals("Novo Nome", pacienteDTO.getNome());
     }
@@ -49,8 +50,16 @@ public class PacienteMinDTOTest {
     @Test
     @DisplayName("Deve retornar e definir a data de nascimento corretamente")
     void testDataNascimento() {
-        PacienteMinDTO pacienteDTO = new PacienteMinDTO("Nome", "Data");
-        pacienteDTO.setDataNascimento("Nova Data");
-        assertEquals("Nova Data", pacienteDTO.getDataNascimento());
+        String data = "30/01/1996";
+        PacienteMinDTO pacienteDTO = new PacienteMinDTO("Nome", data);
+        pacienteDTO.setDataNascimento(data);
+        assertEquals(data, pacienteDTO.getDataNascimento());
+    }
+
+    @Test
+    @DisplayName("Deve retornar a idade corretamente")
+    void testGetIdade() {
+        PacienteMinDTO pacienteDTO = new PacienteMinDTO("Nome", "10/10/1990");
+        assertEquals(34, pacienteDTO.getIdade());
     }
 }
