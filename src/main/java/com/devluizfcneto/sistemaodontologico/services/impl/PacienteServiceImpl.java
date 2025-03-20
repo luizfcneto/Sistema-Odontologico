@@ -3,6 +3,7 @@ package com.devluizfcneto.sistemaodontologico.services.impl;
 import java.util.List;
 import java.util.Optional;
 
+import com.devluizfcneto.sistemaodontologico.repositories.ConsultaRepository;
 import com.devluizfcneto.sistemaodontologico.validations.ListarPacienteParamsValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -16,6 +17,7 @@ import com.devluizfcneto.sistemaodontologico.repositories.PacienteRepository;
 import com.devluizfcneto.sistemaodontologico.services.PacienteService;
 import com.devluizfcneto.sistemaodontologico.utils.DateUtils;
 import com.devluizfcneto.sistemaodontologico.validations.CadastrarPacienteValidation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PacienteServiceImpl implements PacienteService {
@@ -28,10 +30,14 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Autowired
 	private ListarPacienteParamsValidation listarPacienteParamsValidation;
+
+	@Autowired
+	private ConsultaRepository consultaRepository;
 	
 	public PacienteServiceImpl() {}
 
 	@Override
+	@Transactional
 	public Paciente cadastrar(CadastrarPacienteDTO paciente) {
 		this.cadastrarPacienteValidation.validateCadastrarPaciente(paciente);
 		Paciente pacienteExistente = pacienteRepository.findByCpf(paciente.getCpf());
@@ -44,7 +50,8 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public Paciente buscar(Long id) {
-		Optional<Paciente> pacienteExiste = pacienteRepository.findById(id);
+		Optional<Paciente> pacienteExiste = pacienteRepository.findByIdWithConsultas(id);
+
 		if(pacienteExiste.isEmpty()) {
 			throw new PacienteNotFoundException("Erro: Não foi possível encontrar o Paciente");
 		}
@@ -52,17 +59,21 @@ public class PacienteServiceImpl implements PacienteService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Paciente buscar(String nome) {
 		return pacienteRepository.findByNome(nome);
 	}
 
 	@Override
+	@Transactional
 	public void remover(Long id) {
 		Paciente pacienteExistente = this.buscar(id);
+		this.consultaRepository.deleteAll(pacienteExistente.getConsultas());
 		this.pacienteRepository.delete(pacienteExistente);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<Paciente> listarPacientes(String orderBy, String direction) {
 		this.listarPacienteParamsValidation.validateParameters(orderBy);
 		Sort sort = Sort.unsorted();

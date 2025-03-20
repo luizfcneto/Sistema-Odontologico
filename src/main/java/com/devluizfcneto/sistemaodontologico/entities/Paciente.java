@@ -28,7 +28,8 @@ public class Paciente {
 	
 	@Column(name = "data_nascimento")
 	private LocalDate dataNascimento;
-	
+
+//	@OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OneToMany(mappedBy = "paciente")
 	@JsonManagedReference
 	private List<Consulta> consultas;
