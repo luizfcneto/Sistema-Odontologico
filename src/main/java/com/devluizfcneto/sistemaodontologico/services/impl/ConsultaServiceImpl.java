@@ -24,6 +24,7 @@ import com.devluizfcneto.sistemaodontologico.services.ConsultaService;
 import com.devluizfcneto.sistemaodontologico.services.PacienteService;
 import com.devluizfcneto.sistemaodontologico.utils.TimeUtils;
 import com.devluizfcneto.sistemaodontologico.validations.CadastrarConsultaValidation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ConsultaServiceImpl implements ConsultaService{
@@ -41,6 +42,7 @@ public class ConsultaServiceImpl implements ConsultaService{
 	private ListarConsultaParamsValidation listarConsultaParamsValidation;
 	
 	@Override
+	@Transactional
 	public ConsultaResponseDTO cadastrar(CadastrarConsultaDTO consultaDTO) {
 		this.cadastrarConsultaValidation.validateCadastrarConsulta(consultaDTO);
 		
@@ -58,7 +60,8 @@ public class ConsultaServiceImpl implements ConsultaService{
 		return new ConsultaResponseDTO(this.consultaRepository.save(novaConsulta));
 
 	}
-	
+
+	@Transactional(readOnly = true)
 	public Boolean checaPacientePossuiConsultaFutura(Paciente paciente, LocalDate now) {
 		Boolean pacientePossuiConsultaFutura = this.consultaRepository.existeConsultaFutura(paciente.getId(), now);
 		if(pacientePossuiConsultaFutura) {
@@ -66,7 +69,8 @@ public class ConsultaServiceImpl implements ConsultaService{
 		}
 		return pacientePossuiConsultaFutura;
 	}
-	
+
+	@Transactional(readOnly = true)
 	public void checaColisaoConsulta(LocalDate dataConsulta, LocalTime horaInicial, LocalTime horaFinal){
 		List<Consulta> consultasColididas = this.consultaRepository.findConflitosHorario(dataConsulta, horaInicial, horaFinal);
 		if(!consultasColididas.isEmpty()) {
@@ -81,11 +85,13 @@ public class ConsultaServiceImpl implements ConsultaService{
 	}
 
 	@Override
+	@Transactional
 	public void remover(Long id) {
 		this.consultaRepository.deleteById(id);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ConsultaResponseDTO> listarConsultas(String dataInicial, String dataFinal, String direction) {
 		this.listarConsultaParamsValidation.validate(dataInicial, dataFinal);
 		LocalDate dataInicio = dataInicial != null ? DateUtils.formatStringToLocalDate(dataInicial) : null;
